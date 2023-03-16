@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "972849275002",
+    "project_id": "selling-marble",
+    "storage_bucket": "selling-marble.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:972849275002:android:ae1ce9d1ac1b7209f99bc3",
+        "android_client_info": {
+          "package_name": "com.example.selling_marble"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "972849275002-joueb7rfc4k9otcmnhcal148e231khkd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWTFxLNR153l66MmuSs3ADIl2oR8fys5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "972849275002-joueb7rfc4k9otcmnhcal148e231khkd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
