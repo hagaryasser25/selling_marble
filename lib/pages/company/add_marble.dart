@@ -13,7 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:selling_marble/pages/admin/admin_bottom.dart';
 import 'package:selling_marble/pages/company/company_home.dart';
 
-
+import '../models/types_model.dart';
 
 class AddMarble extends StatefulWidget {
   String companyName;
@@ -27,9 +27,38 @@ class AddMarble extends StatefulWidget {
 class _AddMarbleState extends State<AddMarble> {
   String imageUrl = '';
   File? image;
+  String imageUrl2 = '';
+  File? image2;
   var nameController = TextEditingController();
   var priceController = TextEditingController();
   var amountController = TextEditingController();
+  var descriptionController = TextEditingController();
+  String dropdownValue = 'رخام أبيض';
+  late DatabaseReference base;
+  late FirebaseDatabase database;
+  late FirebaseApp app;
+  List<Types> typesList = [];
+  List<String> keyslist = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fetchTypes();
+  }
+
+  void fetchTypes() async {
+    app = await Firebase.initializeApp();
+    database = FirebaseDatabase(app: app);
+    base = database.reference().child("types");
+    base.onChildAdded.listen((event) {
+      print(event.snapshot.value);
+      Types p = Types.fromJson(event.snapshot.value);
+      typesList.add(p);
+      keyslist.add(event.snapshot.key.toString());
+      print(keyslist);
+      setState(() {});
+    });
+  }
 
   @override
   Future pickImageFromDevice() async {
@@ -54,6 +83,28 @@ class _AddMarbleState extends State<AddMarble> {
   }
 
   @override
+  Future pickImageFromDevice2() async {
+    final xFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (xFile == null) return;
+    final tempImage = File(xFile.path);
+    setState(() {
+      image2 = tempImage;
+      print(image2!.path);
+    });
+
+    String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child('images');
+    Reference refrenceImageToUpload = referenceDirImages.child(uniqueFileName);
+    try {
+      await refrenceImageToUpload.putFile(File(xFile.path));
+
+      imageUrl2 = await refrenceImageToUpload.getDownloadURL();
+    } catch (error) {}
+    print(imageUrl2);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -62,140 +113,393 @@ class _AddMarbleState extends State<AddMarble> {
         builder: (context, child) => Scaffold(
           body: Padding(
             padding: EdgeInsets.only(
-              top: 20.h,
+              top: 40.h,
             ),
             child: Padding(
               padding: EdgeInsets.only(right: 10.w, left: 10.w),
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Stack(
-                      children: [
-                        Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 30, horizontal: 30),
-                            child: CircleAvatar(
-                              radius: 65,
-                              backgroundColor: HexColor('#d9ead3'),
-                              backgroundImage:
-                                  image == null ? null : FileImage(image!),
-                            )),
-                        Positioned(
-                            top: 120,
-                            left: 120,
-                            child: SizedBox(
-                              width: 50,
-                              child: RawMaterialButton(
-                                  // constraints: BoxConstraints.tight(const Size(45, 45)),
-                                  elevation: 10,
-                                  fillColor: Color.fromARGB(255, 71, 233, 133),
-                                  child: const Align(
-                                      // ignore: unnecessary_const
-                                      child: Icon(Icons.add_a_photo,
-                                          color: Colors.white, size: 22)),
-                                  padding: const EdgeInsets.all(15),
-                                  shape: const CircleBorder(),
-                                  onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Choose option',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    color:
-                                                        Color.fromARGB(255, 71, 233, 133))),
-                                            content: SingleChildScrollView(
-                                              child: ListBody(
-                                                children: [
-                                                  InkWell(
-                                                      onTap: () {
-                                                        pickImageFromDevice();
-                                                      },
-                                                      splashColor:
-                                                          HexColor('#FA8072'),
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8.0),
-                                                            child: Icon(
-                                                                Icons.image,
-                                                                color: Color.fromARGB(255, 71, 233, 133)),
-                                                          ),
-                                                          Text('Gallery',
-                                                              style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ))
-                                                        ],
-                                                      )),
-                                                  InkWell(
-                                                      onTap: () {
-                                                        // pickImageFromCamera();
-                                                      },
-                                                      splashColor:
-                                                          HexColor('#FA8072'),
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8.0),
-                                                            child: Icon(
-                                                                Icons.camera,
-                                                                color: Color.fromARGB(255, 71, 233, 133)),
-                                                          ),
-                                                          Text('Camera',
-                                                              style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ))
-                                                        ],
-                                                      )),
-                                                  InkWell(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          Navigator.pop(
-                                                              context);
-                                                        });
-                                                      },
-                                                      splashColor:
-                                                          HexColor('#FA8072'),
-                                                      child: Row(
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8.0),
-                                                            child: Icon(
-                                                                Icons
-                                                                    .remove_circle,
-                                                                color: Color.fromARGB(255, 71, 233, 133)),
-                                                          ),
-                                                          Text('Remove',
-                                                              style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ))
-                                                        ],
-                                                      ))
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        });
-                                  }),
-                            )),
-                      ],
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 50.w,
+                      ),
+                      Text('صورة الرخام'),
+                      SizedBox(
+                        width: 130.w,
+                      ),
+                      Text('صورة المنتج')
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Align(
+                        child: Stack(
+                          children: [
+                            Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
+                                child: CircleAvatar(
+                                  radius: 65,
+                                  backgroundColor: HexColor('#d9ead3'),
+                                  backgroundImage:
+                                      image == null ? null : FileImage(image!),
+                                )),
+                            Positioned(
+                                top: 120,
+                                left: 120,
+                                child: SizedBox(
+                                  width: 50,
+                                  child: RawMaterialButton(
+                                      // constraints: BoxConstraints.tight(const Size(45, 45)),
+                                      elevation: 10,
+                                      fillColor:
+                                          Color.fromARGB(255, 71, 233, 133),
+                                      child: const Align(
+                                          // ignore: unnecessary_const
+                                          child: Icon(Icons.add_a_photo,
+                                              color: Colors.white, size: 22)),
+                                      padding: const EdgeInsets.all(15),
+                                      shape: const CircleBorder(),
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text('Choose option',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Color.fromARGB(
+                                                            255,
+                                                            71,
+                                                            233,
+                                                            133))),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: [
+                                                      InkWell(
+                                                          onTap: () {
+                                                            pickImageFromDevice();
+                                                          },
+                                                          splashColor: HexColor(
+                                                              '#FA8072'),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                    Icons.image,
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            71,
+                                                                            233,
+                                                                            133)),
+                                                              ),
+                                                              Text('Gallery',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ))
+                                                            ],
+                                                          )),
+                                                      InkWell(
+                                                          onTap: () {
+                                                            // pickImageFromCamera();
+                                                          },
+                                                          splashColor: HexColor(
+                                                              '#FA8072'),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .camera,
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            71,
+                                                                            233,
+                                                                            133)),
+                                                              ),
+                                                              Text('Camera',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ))
+                                                            ],
+                                                          )),
+                                                      InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            });
+                                                          },
+                                                          splashColor: HexColor(
+                                                              '#FA8072'),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .remove_circle,
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            71,
+                                                                            233,
+                                                                            133)),
+                                                              ),
+                                                              Text('Remove',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ))
+                                                            ],
+                                                          ))
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            });
+                                      }),
+                                )),
+                          ],
+                        ),
+                      ),
+                      Align(
+                        child: Stack(
+                          children: [
+                            Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
+                                child: CircleAvatar(
+                                  radius: 65,
+                                  backgroundColor: HexColor('#d9ead3'),
+                                  backgroundImage: image2 == null
+                                      ? null
+                                      : FileImage(image2!),
+                                )),
+                            Positioned(
+                                top: 120,
+                                left: 120,
+                                child: SizedBox(
+                                  width: 50,
+                                  child: RawMaterialButton(
+                                      // constraints: BoxConstraints.tight(const Size(45, 45)),
+                                      elevation: 10,
+                                      fillColor:
+                                          Color.fromARGB(255, 71, 233, 133),
+                                      child: const Align(
+                                          // ignore: unnecessary_const
+                                          child: Icon(Icons.add_a_photo,
+                                              color: Colors.white, size: 22)),
+                                      padding: const EdgeInsets.all(15),
+                                      shape: const CircleBorder(),
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text('Choose option',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Color.fromARGB(
+                                                            255,
+                                                            71,
+                                                            233,
+                                                            133))),
+                                                content: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: [
+                                                      InkWell(
+                                                          onTap: () {
+                                                            pickImageFromDevice2();
+                                                          },
+                                                          splashColor: HexColor(
+                                                              '#FA8072'),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                    Icons.image,
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            71,
+                                                                            233,
+                                                                            133)),
+                                                              ),
+                                                              Text('Gallery',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ))
+                                                            ],
+                                                          )),
+                                                      InkWell(
+                                                          onTap: () {
+                                                            // pickImageFromCamera();
+                                                          },
+                                                          splashColor: HexColor(
+                                                              '#FA8072'),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .camera,
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            71,
+                                                                            233,
+                                                                            133)),
+                                                              ),
+                                                              Text('Camera',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ))
+                                                            ],
+                                                          )),
+                                                      InkWell(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            });
+                                                          },
+                                                          splashColor: HexColor(
+                                                              '#FA8072'),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .all(
+                                                                        8.0),
+                                                                child: Icon(
+                                                                    Icons
+                                                                        .remove_circle,
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            71,
+                                                                            233,
+                                                                            133)),
+                                                              ),
+                                                              Text('Remove',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  ))
+                                                            ],
+                                                          ))
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            });
+                                      }),
+                                )),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  DecoratedBox(
+                    decoration: ShapeDecoration(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                            width: 1.0,
+                            style: BorderStyle.solid,
+                            color: Color.fromARGB(255, 71, 233, 133)),
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
+                    ),
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      underline: SizedBox(),
+
+                      // Step 3.
+                      value: dropdownValue,
+                      icon: Padding(
+                        padding: EdgeInsets.only(right: 5),
+                        child: Icon(Icons.arrow_drop_down,
+                            color: Color.fromARGB(255, 71, 233, 133)),
+                      ),
+
+                      // Step 4.
+                      items: keyslist
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Center(
+                            child: Text(
+                              value,
+                              style: TextStyle(
+                                  fontSize: 21,
+                                  color: Color.fromARGB(255, 71, 233, 133)),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      // Step 5.
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownValue = newValue!;
+                        });
+                      },
                     ),
                   ),
                   SizedBox(
@@ -208,11 +512,29 @@ class _AddMarbleState extends State<AddMarble> {
                       decoration: InputDecoration(
                         fillColor: HexColor('#155564'),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Color.fromARGB(255, 71, 233, 133), width: 2.0),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 71, 233, 133),
+                              width: 2.0),
                         ),
                         border: OutlineInputBorder(),
-                        hintText: 'اسم المنتج',
+                        hintText: 'اسم الرخام',
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  SizedBox(
+                    height: 65.h,
+                    child: TextField(
+                      controller: descriptionController,
+                      decoration: InputDecoration(
+                        fillColor: HexColor('#155564'),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 71, 233, 133),
+                              width: 2.0),
+                        ),
+                        border: OutlineInputBorder(),
+                        hintText: 'تفاصيل المنتج المصنوع',
                       ),
                     ),
                   ),
@@ -224,8 +546,9 @@ class _AddMarbleState extends State<AddMarble> {
                       decoration: InputDecoration(
                         fillColor: HexColor('#155564'),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Color.fromARGB(255, 71, 233, 133), width: 2.0),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 71, 233, 133),
+                              width: 2.0),
                         ),
                         border: OutlineInputBorder(),
                         hintText: 'سعر المتر',
@@ -240,8 +563,9 @@ class _AddMarbleState extends State<AddMarble> {
                       decoration: InputDecoration(
                         fillColor: HexColor('#155564'),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Color.fromARGB(255, 71, 233, 133), width: 2.0),
+                          borderSide: BorderSide(
+                              color: Color.fromARGB(255, 71, 233, 133),
+                              width: 2.0),
                         ),
                         border: OutlineInputBorder(),
                         hintText: 'الكمية المتاحة',
@@ -260,13 +584,16 @@ class _AddMarbleState extends State<AddMarble> {
                       ),
                       onPressed: () async {
                         String name = nameController.text.trim();
+                        String description = descriptionController.text.trim();
                         int price = int.parse(priceController.text);
                         int amount = int.parse(amountController.text);
 
                         if (name.isEmpty ||
                             price == null ||
-                            amount== null ||
-                            imageUrl.isEmpty) {
+                            amount == null ||
+                            imageUrl.isEmpty ||
+                            description.isEmpty ||
+                            imageUrl2.isEmpty) {
                           CherryToast.info(
                             title: Text('Please Fill all Fields'),
                             actionHandler: () {},
@@ -283,7 +610,9 @@ class _AddMarbleState extends State<AddMarble> {
                           DatabaseReference companyRef = FirebaseDatabase
                               .instance
                               .reference()
-                              .child('Marble').child('${widget.companyName}');
+                              .child('Marble')
+                              .child('${widget.companyName}')
+                              .child('$dropdownValue');
 
                           String? id = companyRef.push().key;
 
@@ -294,6 +623,9 @@ class _AddMarbleState extends State<AddMarble> {
                             'price': price,
                             'companyName': widget.companyName,
                             'amount': amount,
+                            'type': dropdownValue,
+                            'imageUrl2': imageUrl2,
+                            'description': description,
                           });
                         }
                         showAlertDialog(context);

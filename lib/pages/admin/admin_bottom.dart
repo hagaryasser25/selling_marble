@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import '../admin/logout_page.dart';
 import 'admin_complain.dart';
 import 'admin_home.dart';
+import 'admin_marble.dart';
 
 class AdminBottom extends StatefulWidget {
   static const routeName = '/adminBottom';
@@ -19,12 +20,14 @@ class AdminBottom extends StatefulWidget {
 
 class _AdminBottomState extends State<AdminBottom> {
   final _pageController = PageController(initialPage: 0);
-  int maxCount = 3;
+  int maxCount = 4;
 
   final List<Widget> bottomBarPages = [
     AdminHome(),
+    AdminMarble(),
     AdminComplain(),
     LogoutPage(),
+
   ];
 
   void dispose() {
@@ -64,6 +67,17 @@ class _AdminBottomState extends State<AdminBottom> {
                     color: Colors.white,
                   ),
                   itemLabel: 'Page 1',
+                ),
+                const BottomBarItem(
+                  inActiveItem: Icon(
+                    Icons.airlines,
+                    color: Color.fromARGB(255, 71, 233, 133),
+                  ),
+                  activeItem: Icon(
+                    Icons.airlines,
+                    color: Colors.white,
+                  ),
+                  itemLabel: 'Page 2',
                 ),
                 const BottomBarItem(
                   inActiveItem: Icon(

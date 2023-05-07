@@ -23,8 +23,9 @@ import '../models/users_model.dart';
 
 class UserMarble extends StatefulWidget {
   String companyName;
+  String type;
   static const routeName = '/userMarble';
-  UserMarble({required this.companyName});
+  UserMarble({required this.companyName, required this.type});
 
   @override
   State<UserMarble> createState() => _UserMarbleState();
@@ -72,7 +73,8 @@ class _UserMarbleState extends State<UserMarble> {
     base = await database
         .reference()
         .child("Marble")
-        .child('${widget.companyName}');
+        .child('${widget.companyName}')
+        .child('${widget.type}');
     base.onChildAdded.listen((event) {
       print(event.snapshot.value);
       Marble p = Marble.fromJson(event.snapshot.value);
@@ -111,29 +113,8 @@ class _UserMarbleState extends State<UserMarble> {
                       padding: EdgeInsets.only(right: 20.w),
                       child: Row(
                         children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor:
-                                Color.fromARGB(255, 63, 63, 63), //<-- SEE HERE
-                            child: IconButton(
-                              icon: Center(
-                                child: Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return AddMarble(
-                                    companyName: '${widget.companyName}',
-                                  );
-                                }));
-                              },
-                            ),
-                          ),
                           SizedBox(
-                            width: 250.w,
+                            width: 280.w,
                           ),
                           CircleAvatar(
                             radius: 20,
@@ -183,36 +164,60 @@ class _UserMarbleState extends State<UserMarble> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       top: 10, right: 15, left: 15, bottom: 10),
-                                  child: Row(children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 10.w),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${marbleList[index].name.toString()}',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 19,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 10.w),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                            width: 110.w,
+                                            height: 170.h,
+                                            child: Image.network(
+                                                '${marbleList[index].imageUrl.toString()}')),
+                                        Text(
+                                          '${marbleList[index].name.toString()}',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 19,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          Text(
-                                            'سعر المتر : ${marbleList[index].price.toString()}',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                            ),
+                                        ),
+                                        Text(
+                                          'سعر المتر : ${marbleList[index].price.toString()}',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 17,
                                           ),
-                                          Text(
-                                            'الكمية المتاحة : ${marbleList[index].amount.toString()} متر',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                            ),
+                                        ),
+                                        Text(
+                                          'الكمية المتاحة : ${marbleList[index].amount.toString()} متر',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 17,
                                           ),
-                                          Row(
-                                            children: [
-                                              InkWell(
+                                        ),
+                                        SizedBox(
+                                          height: 10.h,
+                                        ),
+                                        Text('المنتج المصنوع من مادة الرخام',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w600)),
+                                        Container(
+                                            width: 110.w,
+                                            height: 170.h,
+                                            child: Image.network(
+                                                '${marbleList[index].imageUrl2.toString()}')),
+                                        Text(
+                                          '${marbleList[index].description.toString()}',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 19,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        
+                                            Center(
+                                              child: InkWell(
                                                 onTap: () async {
                                                   showDialog(
                                                     context: context,
@@ -359,8 +364,10 @@ class _UserMarbleState extends State<UserMarble> {
 
                                                                 await marbleRef
                                                                     .update({
-                                                                  'amount':
-                                                                      marbleList[index].amount! - amount,
+                                                                  'amount': marbleList[
+                                                                              index]
+                                                                          .amount! -
+                                                                      amount,
                                                                 });
                                                               }
 
@@ -381,20 +388,11 @@ class _UserMarbleState extends State<UserMarble> {
                                                     color: Color.fromARGB(
                                                         255, 122, 122, 122)),
                                               ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
+                                            ),
+                                          
+                                      ],
                                     ),
-                                    SizedBox(
-                                      width: 20.w,
-                                    ),
-                                    Container(
-                                        width: 110.w,
-                                        height: 170.h,
-                                        child: Image.network(
-                                            '${marbleList[index].imageUrl.toString()}')),
-                                  ]),
+                                  ),
                                 ),
                               ),
                             ),

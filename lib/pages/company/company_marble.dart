@@ -9,6 +9,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:selling_marble/pages/admin/add_company.dart';
 import 'package:selling_marble/pages/company/add_marble.dart';
+import 'package:selling_marble/pages/company/marble_details.dart';
 import 'package:selling_marble/pages/models/marble_model.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
@@ -43,10 +44,7 @@ class _CompanyMarbleState extends State<CompanyMarble> {
   fetchMarble() async {
     app = await Firebase.initializeApp();
     database = FirebaseDatabase(app: app);
-    base = await database
-        .reference()
-        .child("Marble")
-        .child('${widget.companyName}');
+    base = await database.reference().child("Marble").child('${widget.companyName}');
     base.onChildAdded.listen((event) {
       print(event.snapshot.value);
       Marble p = Marble.fromJson(event.snapshot.value);
@@ -137,91 +135,95 @@ class _CompanyMarbleState extends State<CompanyMarble> {
                 ),
               ),
               Expanded(
-                flex: 8,
-                child: ListView.builder(
-                    itemCount: marbleList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(right: 15.w, left: 15.w),
-                            child: Card(
-                              color: HexColor('#ccefc0'),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 10, right: 15, left: 15, bottom: 10),
-                                  child: Row(children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 10.w),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            '${marbleList[index].name.toString()}',
-                                            textAlign: TextAlign.right,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 20.w, left: 20.w),
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    children: [
+                      Container(
+                        child: StaggeredGridView.countBuilder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.only(
+                            left: 15.w,
+                            right: 15.w,
+                            bottom: 15.h,
+                          ),
+                          crossAxisCount: 6,
+                          itemCount: keyslist.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return MarbleDetails(
+                                    companyName: '${widget.companyName}',
+                                    type: '${keyslist[index]}',
+                                  );
+                                }));
+                                },
+                                child: Card(
+                                  color: HexColor('#ccefc0'),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        right: 10.w, left: 10.w),
+                                    child: Center(
+                                      child: Column(children: [
+                                        SizedBox(
+                                          height: 20.h,
+                                        ),
+                                        FittedBox(
+                                          fit: BoxFit.fitWidth,
+                                          child: Text(
+                                            '${keyslist[index]}',
                                             style: TextStyle(
-                                              fontSize: 19,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                                overflow: TextOverflow.ellipsis,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black),
                                           ),
-                                          Text(
-                                            'سعر المتر : ${marbleList[index].price.toString()}',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                            ),
-                                          ),
-                                          Text(
-                                            'الكمية المتاحة : ${marbleList[index].amount.toString()} متر',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                            ),
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.pushReplacement(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (BuildContext
-                                                              context) =>
-                                                          super.widget));
-                                              base
-                                                  .child(marbleList[index]
-                                                      .id
-                                                      .toString())
-                                                  .remove();
-                                            },
-                                            child: Icon(Icons.delete,
-                                                color: Color.fromARGB(
-                                                    255, 122, 122, 122)),
-                                          )
-                                        ],
-                                      ),
+                                        ),
+                                        SizedBox(
+                                          height: 10.h,
+                                        ),
+                                        InkWell(
+                                          onTap: () async {
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        super.widget));
+                                            FirebaseDatabase.instance
+                                                .reference()
+                                                .child('Marble')
+                                                .child('${marbleList[index].id}')
+                                                .remove();
+                                          },
+                                          child: Icon(Icons.delete,
+                                              color: Color.fromARGB(
+                                                  255, 122, 122, 122)),
+                                        )
+                                      ]),
                                     ),
-                                    SizedBox(
-                                      width: 20.w,
-                                    ),
-                                    Container(
-                                        width: 110.w,
-                                        height: 170.h,
-                                        child: Image.network(
-                                            '${marbleList[index].imageUrl.toString()}')),
-                                  ]),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10.h,
-                          )
-                        ],
-                      );
-                    }),
+                            );
+                          },
+                          staggeredTileBuilder: (int index) =>
+                              new StaggeredTile.count(3, index.isEven ? 2 : 2),
+                          mainAxisSpacing: 10.0,
+                          crossAxisSpacing: 5.0.w,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

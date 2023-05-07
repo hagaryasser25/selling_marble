@@ -8,8 +8,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:selling_marble/pages/admin/add_company.dart';
+import 'package:selling_marble/pages/company/add_marble.dart';
+import 'package:selling_marble/pages/company/marble_details.dart';
+import 'package:selling_marble/pages/models/marble_model.dart';
 import 'package:selling_marble/pages/user/user_marble.dart';
-import 'package:selling_marble/pages/user/user_types.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
 
@@ -18,74 +20,50 @@ import '../models/company_model.dart';
 import '../models/product_model.dart';
 import '../models/users_model.dart';
 
-class UserHome extends StatefulWidget {
-  static const routeName = '/userHome';
-  const UserHome({super.key});
+class UserTypes extends StatefulWidget {
+  String companyName;
+  static const routeName = '/userTypes';
+  UserTypes({required this.companyName});
 
   @override
-  State<UserHome> createState() => _UserHomeState();
+  State<UserTypes> createState() => _UserTypesState();
 }
 
-class _UserHomeState extends State<UserHome> {
+class _UserTypesState extends State<UserTypes> {
   late DatabaseReference base;
   late FirebaseDatabase database;
   late FirebaseApp app;
-  List<Company> companyList = [];
+  List<Marble> marbleList = [];
   List<String> keyslist = [];
-  late Users currentUser;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    fetchCompany();
+    fetchMarble();
   }
 
-   @override
-  void initState() {
-    getUserData();
-    super.initState();
-  }
-
-  @override
-  void fetchCompany() async {
+  fetchMarble() async {
     app = await Firebase.initializeApp();
     database = FirebaseDatabase(app: app);
-    base = database.reference().child("company");
+    base = await database.reference().child("Marble").child('${widget.companyName}');
     base.onChildAdded.listen((event) {
       print(event.snapshot.value);
-      Company p = Company.fromJson(event.snapshot.value);
-      companyList.add(p);
+      Marble p = Marble.fromJson(event.snapshot.value);
+      marbleList.add(p);
       keyslist.add(event.snapshot.key.toString());
-      print(keyslist);
       setState(() {});
-    });
-  }
-
- 
-
-  getUserData() async {
-    app = await Firebase.initializeApp();
-    database = FirebaseDatabase(app: app);
-    base = database
-        .reference()
-        .child("users")
-        .child(FirebaseAuth.instance.currentUser!.uid);
-
-    final snapshot = await base.get();
-    setState(() {
-      currentUser = Users.fromSnapshot(snapshot);
-      print(currentUser.fullName);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
-        textDirection: TextDirection.rtl,
-        child: ScreenUtilInit(
-          designSize: const Size(375, 812),
-          builder: (context, child) => Scaffold(
-            body: Column(children: [
+      textDirection: TextDirection.rtl,
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        builder: (context, child) => Scaffold(
+          body: Column(
+            children: [
               Container(
                 height: 150.h,
                 decoration: BoxDecoration(
@@ -104,52 +82,23 @@ class _UserHomeState extends State<UserHome> {
                       padding: EdgeInsets.only(right: 20.w),
                       child: Row(
                         children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.white,
-                            backgroundImage:
-                                AssetImage('assets/images/icon.png'),
-                          ),
+                          
                           SizedBox(
-                            width: 250.w,
+                            width: 280.w,
                           ),
-                           CircleAvatar(
+                          CircleAvatar(
                             radius: 20,
                             backgroundColor:
                                 Color.fromARGB(255, 63, 63, 63), //<-- SEE HERE
                             child: IconButton(
                               icon: Center(
                                 child: Icon(
-                                  Icons.logout,
+                                  Icons.arrow_forward,
                                   color: Colors.white,
                                 ),
                               ),
                               onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text('تأكيد'),
-                                        content: Text(
-                                            'هل انت متأكد من تسجيل الخروج'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              FirebaseAuth.instance.signOut();
-                                              Navigator.pushNamed(
-                                                  context, LoginPage.routeName);
-                                            },
-                                            child: Text('نعم'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text('لا'),
-                                          ),
-                                        ],
-                                      );
-                                    });
+                                Navigator.pop(context);
                               },
                             ),
                           )
@@ -157,7 +106,7 @@ class _UserHomeState extends State<UserHome> {
                       ),
                     ),
                     Text(
-                      'شركات الرخام',
+                      'الرخام',
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -182,19 +131,21 @@ class _UserHomeState extends State<UserHome> {
                             bottom: 15.h,
                           ),
                           crossAxisCount: 6,
-                          itemCount: companyList.length,
+                          itemCount: keyslist.length,
                           itemBuilder: (context, index) {
                             return Container(
                               child: InkWell(
                                 onTap: () {
                                   Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) {
-                                    return UserTypes(
-                                      companyName: '${companyList[index].name}',
-                                    );
-                                  }));
+                                    MaterialPageRoute(builder: (context) {
+                                  return UserMarble(
+                                    companyName: '${widget.companyName}',
+                                    type: '${keyslist[index]}',
+                                  );
+                                }));
                                 },
                                 child: Card(
+                                  color: HexColor('#ccefc0'),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15.0),
                                   ),
@@ -203,12 +154,17 @@ class _UserHomeState extends State<UserHome> {
                                         right: 10.w, left: 10.w),
                                     child: Center(
                                       child: Column(children: [
-                                        Image.asset('assets/images/company.jpg',
-                                            width: 155.w, height: 155.h),
+                                        SizedBox(
+                                          height: 20.h,
+                                        ),
+                                        Image.asset('assets/images/icon.png',height: 100.h,),
+                                        SizedBox(
+                                          height: 20.h,
+                                        ),
                                         FittedBox(
                                           fit: BoxFit.fitWidth,
                                           child: Text(
-                                            '${companyList[index].name}',
+                                            '${keyslist[index]}',
                                             style: TextStyle(
                                                 overflow: TextOverflow.ellipsis,
                                                 fontSize: 18,
@@ -216,18 +172,7 @@ class _UserHomeState extends State<UserHome> {
                                                 color: Colors.black),
                                           ),
                                         ),
-                                        SizedBox(
-                                          height: 10.h,
-                                        ),
-                                        FittedBox(
-                                          fit: BoxFit.fitWidth,
-                                          child: Text(
-                                            '${companyList[index].phoneNumber}',
-                                            style: TextStyle(
-                                                overflow: TextOverflow.ellipsis,
-                                                color: Colors.black),
-                                          ),
-                                        ),
+                                        
                                       ]),
                                     ),
                                   ),
@@ -237,7 +182,7 @@ class _UserHomeState extends State<UserHome> {
                           },
                           staggeredTileBuilder: (int index) =>
                               new StaggeredTile.count(3, index.isEven ? 3 : 3),
-                          mainAxisSpacing: 40.0,
+                          mainAxisSpacing: 10.0,
                           crossAxisSpacing: 5.0.w,
                         ),
                       )
@@ -245,9 +190,10 @@ class _UserHomeState extends State<UserHome> {
                   ),
                 ),
               ),
-              SizedBox(height: 100.h)
-            ]),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:selling_marble/pages/admin/add_company.dart';
+import 'package:selling_marble/pages/admin/add_types.dart';
 import 'package:selling_marble/pages/admin/admin_bottom.dart';
 import 'package:selling_marble/pages/admin/admin_home.dart';
 import 'package:selling_marble/pages/auth/admin_login.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: FirebaseAuth.instance.currentUser == null
-          ?  LoginPage()
+          ? LoginPage()
           : FirebaseAuth.instance.currentUser!.email == 'admin@gmail.com'
               ? const AdminBottom()
               : FirebaseAuth.instance.currentUser!.displayName == 'شركة'
@@ -59,6 +60,7 @@ class MyApp extends StatelessWidget {
         AddCompany.routeName: (ctx) => AddCompany(),
         SendComplain.routeName: (ctx) => SendComplain(),
         UserReplays.routeName: (ctx) => UserReplays(),
+        AddTypes.routeName: (ctx) => AddTypes(),
       },
     );
   }

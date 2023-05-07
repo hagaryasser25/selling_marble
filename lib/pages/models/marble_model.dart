@@ -7,6 +7,8 @@ class Marble {
     int? amount,
     String? id,
     String? imageUrl,
+    String? imageUrl2,
+    String? description,
   }) {
     _name = name;
     _price = price;
@@ -14,6 +16,8 @@ class Marble {
     _amount = amount;
     _id = id;
     _imageUrl = imageUrl;
+    _imageUrl2 = imageUrl2;
+    _description = description;
   }
 
   Marble.fromJson(dynamic json) {
@@ -23,6 +27,8 @@ class Marble {
     _amount = json['amount'];
     _id = json['id'];
     _imageUrl = json['imageUrl'];
+    _imageUrl2 = json['imageUrl2'];
+    _description = json['description'];
   }
 
   String? _name;
@@ -31,6 +37,8 @@ class Marble {
   int? _amount;
   String? _id;
   String? _imageUrl;
+  String? _imageUrl2;
+  String? _description;
 
   String? get name => _name;
   int? get price => _price;
@@ -38,6 +46,8 @@ class Marble {
   int? get amount => _amount;
   String? get id => _id;
   String? get imageUrl => _imageUrl;
+  String? get imageUrl2 => _imageUrl2;
+  String? get description => _description;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -46,6 +56,8 @@ class Marble {
     map['amount'] = _amount;
     map['id'] = _id;
     map['imageUrl'] = _imageUrl;
+    map['imageUrl2'] = _imageUrl2;
+    map['description'] = _description;
 
     return map;
   }

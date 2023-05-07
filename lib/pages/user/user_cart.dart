@@ -23,12 +23,15 @@ class _UserCartState extends State<UserCart> {
   late FirebaseApp app;
   List<Cart> cartList = [];
   List<String> keyslist = [];
+  int totalPrice = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     fetchCart();
+    total();
   }
+
 
   @override
   void fetchCart() async {
@@ -47,6 +50,25 @@ class _UserCartState extends State<UserCart> {
         setState(() {});
       }
     });
+  }
+
+  void total() async {
+    app = await Firebase.initializeApp();
+    database = FirebaseDatabase(app: app);
+    base = database.
+        reference()
+        .child("cart")
+        .child(FirebaseAuth.instance.currentUser!.uid);
+    var snapshot = await base.get();
+    for (var element in snapshot.children) {
+      Cart model = Cart.fromJson(element.value);
+      print('modelPrice: ${model.total}');
+
+      setState(() {
+        totalPrice += model.total!;
+        print(totalPrice);
+      });
+    }
   }
 
   @override
@@ -165,8 +187,10 @@ class _UserCartState extends State<UserCart> {
                                                 ),
                                                 child: Text('شراء الأن'),
                                                 onPressed: () async {
-                                                  int? price = cartList[index].price;
-                                                  int? total = cartList[index].total;
+                                                  int? price =
+                                                      cartList[index].price;
+                                                  int? total =
+                                                      cartList[index].total;
                                                   User? user = FirebaseAuth
                                                       .instance.currentUser;
 
@@ -189,12 +213,10 @@ class _UserCartState extends State<UserCart> {
                                                       'id': id,
                                                       'name':
                                                           '${cartList[index].name.toString()}',
-                                                      'price':
-                                                          price,
+                                                      'price': price,
                                                       'amount':
                                                           '${cartList[index].amount.toString()}',
-                                                      'total':
-                                                          total,
+                                                      'total': total,
                                                       'imageUrl':
                                                           '${cartList[index].imageUrl.toString()}',
                                                       'companyName':
@@ -363,6 +385,7 @@ class _UserCartState extends State<UserCart> {
                       );
                     }),
               ),
+              
             ],
           ),
         ),
