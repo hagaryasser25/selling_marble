@@ -200,8 +200,9 @@ class _CompanyMarbleState extends State<CompanyMarble> {
                                                         super.widget));
                                             FirebaseDatabase.instance
                                                 .reference()
-                                                .child('Marble')
-                                                .child('${marbleList[index].id}')
+                                                .child('Marble').
+                                                child('${widget.companyName}')
+                                                .child('${keyslist[index]}')
                                                 .remove();
                                           },
                                           child: Icon(Icons.delete,

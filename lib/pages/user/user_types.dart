@@ -157,7 +157,7 @@ class _UserTypesState extends State<UserTypes> {
                                         SizedBox(
                                           height: 20.h,
                                         ),
-                                        Image.asset('assets/images/icon.png',height: 100.h,),
+                                        Image.asset('assets/images/icon.png',height: 80.h,),
                                         SizedBox(
                                           height: 20.h,
                                         ),
