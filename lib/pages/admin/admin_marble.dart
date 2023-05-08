@@ -177,13 +177,15 @@ class _AdminMarbleState extends State<AdminMarble> {
                                                 .reference()
                                                 .child('types')
                                                 .child(
-                                                    '${typesList[index].id}')
+                                                    '${keyslist[index]}')
                                                 .remove();
                                           },
                                           child: Icon(Icons.delete,
                                               color: Color.fromARGB(
                                                   255, 122, 122, 122)),
                                         )
+
+                                        
                                       ]),
                                     ),
                                   ),
