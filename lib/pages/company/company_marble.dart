@@ -44,13 +44,18 @@ class _CompanyMarbleState extends State<CompanyMarble> {
   fetchMarble() async {
     app = await Firebase.initializeApp();
     database = FirebaseDatabase(app: app);
-    base = await database.reference().child("Marble").child('${widget.companyName}');
+    base = await database
+        .reference()
+        .child("Marble")
+        .child('${widget.companyName}');
     base.onChildAdded.listen((event) {
       print(event.snapshot.value);
       Marble p = Marble.fromJson(event.snapshot.value);
       marbleList.add(p);
       keyslist.add(event.snapshot.key.toString());
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -156,12 +161,12 @@ class _CompanyMarbleState extends State<CompanyMarble> {
                               child: InkWell(
                                 onTap: () {
                                   Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return MarbleDetails(
-                                    companyName: '${widget.companyName}',
-                                    type: '${keyslist[index]}',
-                                  );
-                                }));
+                                      MaterialPageRoute(builder: (context) {
+                                    return MarbleDetails(
+                                      companyName: '${widget.companyName}',
+                                      type: '${keyslist[index]}',
+                                    );
+                                  }));
                                 },
                                 child: Card(
                                   color: HexColor('#ccefc0'),
@@ -200,8 +205,9 @@ class _CompanyMarbleState extends State<CompanyMarble> {
                                                         super.widget));
                                             FirebaseDatabase.instance
                                                 .reference()
-                                                .child('Marble').
-                                                child('${widget.companyName}')
+                                                .child('Marble')
+                                                .child('${widget.companyName}')
+                                                .child('${widget.companyName}')
                                                 .child('${keyslist[index]}')
                                                 .remove();
                                           },

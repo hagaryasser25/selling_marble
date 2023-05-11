@@ -33,7 +33,7 @@ class _AddMarbleState extends State<AddMarble> {
   var priceController = TextEditingController();
   var amountController = TextEditingController();
   var descriptionController = TextEditingController();
-  String dropdownValue = 'رخام أبيض';
+  String dropdownValue = 'محلي';
   late DatabaseReference base;
   late FirebaseDatabase database;
   late FirebaseApp app;

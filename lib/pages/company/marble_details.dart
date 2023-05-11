@@ -226,6 +226,8 @@ class _MarbleDetailsState extends State<MarbleDetails> {
                                               FirebaseDatabase.instance
                                                   .reference()
                                                   .child('Marble')
+                                                  .child('${widget.companyName}')
+                                                  .child('${widget.type}')
                                                   .child(
                                                       '${marbleList[index].id}')
                                                   .remove();

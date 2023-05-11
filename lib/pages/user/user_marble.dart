@@ -358,7 +358,7 @@ class _UserMarbleState extends State<UserMarble> {
                                                                         .child(
                                                                             'Marble')
                                                                         .child(
-                                                                            '${widget.companyName}')
+                                                                            '${widget.companyName}').child('${widget.type}')
                                                                         .child(
                                                                             '${marbleList[index].id}');
 
